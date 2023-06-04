@@ -1,15 +1,14 @@
-import { Response } from "express";
-import { NextFunction, Request } from "express";
+import { Response, NextFunction, Request } from "express";
+
+import { ErrResponse } from "../utils/errorResponse";
 
 const errorHandler = (
-  err: Error,
+  err: Error | ErrResponse,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const status = "statusCode" in err ? err.statusCode : 500;
-
-  req;
 
   res.status(status).json({
     success: false,
