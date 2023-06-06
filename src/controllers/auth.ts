@@ -65,7 +65,28 @@ export const updatePhoto = asyncHandler(async (req, res, next) => {
     return next(new Error("Failed to upload photo"));
   }
 
-  await User.updateOne({ id: req.user?._id }, { photo });
+  await User.updateOne({ _id: req.user?._id }, { photo });
+
+  res.status(200).json({
+    success: true,
+    data: null,
+  });
+});
+
+// @desc    Update User ingo
+// @route   PUT /api/auth/updatephoto
+// access   Private
+export const updateInfo = asyncHandler(async (req, res, next) => {
+  const { username } = req.body;
+
+  if (!username) {
+    return res.status(200).json({
+      success: true,
+      data: null,
+    });
+  }
+
+  await User.updateOne({ _id: req.user?._id }, { username });
 
   res.status(200).json({
     success: true,
@@ -77,6 +98,7 @@ export const updatePhoto = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/auth/online
 // access   Private - requested with user id
 export const updateToOnline = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
   const { id } = req.body;
 
   if (!id) {
