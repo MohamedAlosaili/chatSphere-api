@@ -1,29 +1,27 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
+import regex from "../utils/regex";
 
-interface User {
-  name: string;
+export interface User {
+  _id: string | ObjectId;
   username: string;
   email: string;
   isOnline: boolean;
   locale: "ar" | "en";
   photo: string;
+  createdAt: Date | string;
 }
 
 const UserSchema = new mongoose.Schema<User>(
   {
-    name: {
-      type: String,
-      required: true,
-    },
     username: {
       type: String,
-      required: true,
     },
     email: {
       type: String,
       required: true,
-      match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/,
+      match: regex.validEmail,
       unique: true,
+      lowercase: true,
     },
     isOnline: {
       type: Boolean,
@@ -43,5 +41,14 @@ const UserSchema = new mongoose.Schema<User>(
     timestamps: true,
   }
 );
+
+UserSchema.pre("save", function (next) {
+  if (this.isNew && !this.username) {
+    const username = this.email.split("@")[0];
+
+    this.username = username;
+  }
+  next();
+});
 
 export default mongoose.model<User>("User", UserSchema);
