@@ -44,3 +44,75 @@ const getOrigin = () => {
     ? process.env.DEV_CLIENT_URL
     : process.env.PROD_CLIENT_URL;
 };
+
+// @desc    Get currentUser info
+// @route   PUT /api/auth/currentUser
+// access   Private - requested with user id
+export const currentUser = (req: Req, res: Res) => {
+  res.status(200).json({
+    success: true,
+    data: req.user,
+  });
+};
+
+// @desc    Update User photo
+// @route   PUT /api/auth/updatephoto
+// access   Private
+export const updatePhoto = asyncHandler(async (req, res, next) => {
+  const photo = req.body.uploadedFile?.url;
+
+  if (!photo) {
+    return next(new Error("Failed to upload photo"));
+  }
+
+  await User.updateOne({ id: req.user?._id }, { photo });
+
+  res.status(200).json({
+    success: true,
+    data: null,
+  });
+});
+
+// @desc    Update to online
+// @route   PUT /api/auth/online
+// access   Private - requested with user id
+export const updateToOnline = asyncHandler(async (req, res, next) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return next(new ErrorResponse("Not authorized", 401));
+  }
+
+  const user = await User.findByIdAndUpdate(
+    id,
+    { isOnline: true },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
+// @desc    Update to offline
+// @route   PUT /api/auth/offline
+// access   Private - requested with user id
+export const updateToOffline = asyncHandler(async (req, res, next) => {
+  const { id } = req.body;
+
+  if (!id) {
+    return next(new ErrorResponse("Not authorized", 401));
+  }
+
+  const user = await User.findByIdAndUpdate(
+    id,
+    { isOnline: false },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
