@@ -5,22 +5,24 @@ import colors from "colors";
 import connectDB from "./config/db";
 
 // Middlewares
-import errorHandler from "./middlewares/errorHandler";
 import protect from "./middlewares/protect";
+import errorHandler from "./middlewares/errorHandler";
+import notFound from "./middlewares/notFound";
 
 // Route files
 import chats from "./routes/chats";
+import auth from "./routes/auth";
 
 const app = express();
+app.use(express.json());
 connectDB();
 
-// All route must receive associated with token in the header
-app.use(protect);
-
 // Mount routes
-app.use("/api/chats", chats);
+app.use("/api/auth", auth);
+app.use("/api/chats", protect, chats);
 
 // Error handler middleware
+app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
