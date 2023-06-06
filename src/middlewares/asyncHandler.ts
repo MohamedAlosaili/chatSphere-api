@@ -1,9 +1,6 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction } from "express";
+import { Req, Res } from "../types";
 
-import { User } from "../models/User";
-
-type Req = Request & { user?: User };
-type Res = Response;
 type Fn = (req: Req, res: Res, next: NextFunction) => any;
 
 const asyncHandler = (fn: Fn) => (req: Req, res: Res, next: NextFunction) =>
