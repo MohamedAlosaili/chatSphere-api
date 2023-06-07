@@ -6,7 +6,7 @@ import ErrorResponse from "../utils/errorResponse";
 // Types
 import { Next, Req, Res } from "../types";
 
-// Fub fact 😁:
+// Fun fact 😁:
 //      if you remove on of the argument below this middleware won't work
 //      Express will use the default error handler instead
 
