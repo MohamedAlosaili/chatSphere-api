@@ -49,8 +49,7 @@ const advancedResults = asyncHandler(async (req, res, next) => {
   const startIndex = (page - 1) * limit; // 0
   const endIndex = page * limit; // 25
 
-  const total =
-    (await req.model.countDocuments()) - (req.subtractFromTotal ?? 0);
+  const total = await req.model.countDocuments(req.filterQuery ?? {});
 
   query = query.skip(startIndex).limit(limit);
 
