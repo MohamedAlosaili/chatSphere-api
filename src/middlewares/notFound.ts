@@ -1,9 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-
 import ErrorResponse from "../utils/errorResponse";
 
-const notFound = (req: Request, res: Response, next: NextFunction) => {
-  console.log(req.body, req.headers.authorization);
+import { Next, Req, Res } from "../types";
+
+const notFound = (req: Req, res: Res, next: Next) => {
   return next(new ErrorResponse(`Not found '${req.method} - ${req.url}'`, 404));
 };
 
