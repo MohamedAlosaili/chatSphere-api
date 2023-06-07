@@ -11,7 +11,6 @@ interface AdditionalRequestProperties {
   model: typeof Model;
   filterQuery: FilterQuery<any>;
   populateQuery: PopulateQuery[];
-  subtractFromTotal: number;
 }
 
 interface AdditionalResponseProperties {
