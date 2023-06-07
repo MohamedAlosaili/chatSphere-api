@@ -1,8 +1,7 @@
-import jwt from "jsonwebtoken";
-
+import User from "../models/User";
 import ErrorResponse from "../utils/errorResponse";
 import asyncHandler from "./asyncHandler";
-import User from "../models/User";
+import { verifyJwtToken } from "../lib/jwtToken";
 
 const protect = asyncHandler(async (req, res, next) => {
   if (
@@ -17,11 +16,9 @@ const protect = asyncHandler(async (req, res, next) => {
   const token = req.headers.authorization.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "") as {
-      id: string;
-    };
+    const decoded = verifyJwtToken(token);
 
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id).select("+email");
 
     if (!user) {
       return next(new ErrorResponse("Not authorized", 401));
