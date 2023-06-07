@@ -1,7 +1,3 @@
-export interface ErrResponse extends Error {
-  statusCode: number;
-}
-
 class ErrorResponse extends Error {
   statusCode: number;
 
