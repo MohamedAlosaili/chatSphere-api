@@ -1,12 +1,13 @@
 import Room from "../models/Room";
+import Member from "../models/Member";
 
 import asyncHandler from "../middlewares/asyncHandler";
-import ErrorResponse from "../utils/errorResponse";
 
 // Types
 import { Next, Req, Res } from "../types";
+import { Aggregate, PipelineStage } from "mongoose";
 
-// @desc    Get all available rooms
+// @desc    Get all available rooms - public rooms
 // @route   GET /api/rooms
 // access   Private
 export const getAvailableRooms = (req: Req, res: Res, next: Next) => {
@@ -16,19 +17,60 @@ export const getAvailableRooms = (req: Req, res: Res, next: Next) => {
   next();
 };
 
-// @desc    Create new room
-// @route   POST /api/rooms
+// @desc    Get current user rooms
+// @route   GET /api/rooms/joined
 // access   Private
-export const createRoom = asyncHandler(async (req, res, next) => {
-  req.body.photo = req.body.uploadedFile?.url;
-  req.body.roomOwner = req.user?._id;
+export const getCurrentUserRooms = asyncHandler(async (req, res, next) => {
+  const { page: pag, limit: lmt } = req.query;
 
-  const room = await Room.create(req.body);
+  const page = Math.abs(parseInt(typeof pag === "string" ? pag : "1")) || 1;
+  const limit = Math.abs(parseInt(typeof lmt === "string" ? lmt : "25")) || 25;
 
-  res.status(201).json({
+  const startIndex = (page - 1) * limit; // 0
+  const endIndex = page * limit; // 25
+
+  const user = req.user!;
+
+  const pipeline: PipelineStage[] = [
+    {
+      $match: {
+        memberId: user._id,
+      },
+    },
+    {
+      $lookup: {
+        from: "rooms",
+        localField: "roomId",
+        foreignField: "_id",
+        as: "roomId",
+      },
+    },
+    { $unwind: { path: "$roomId" } },
+    { $replaceRoot: { newRoot: "$roomId" } },
+    { $sort: { updatedAt: -1 } },
+  ];
+
+  const [rooms, [{ total }]] = await Promise.all([
+    Member.aggregate([...pipeline, { $limit: limit }, { $skip: startIndex }]),
+    Member.aggregate([...pipeline, { $count: "total" }]) as Aggregate<
+      [{ total: number }]
+    >,
+  ]);
+
+  const pagination = {
+    next: total > endIndex,
+    prev: startIndex > 0,
+    limit,
+    page,
+    pageSize: rooms.length,
+    totalPages: Math.ceil(total / limit),
+  };
+
+  res.json({
     success: true,
-    data: room,
-    message: `'${room.name}' room created`,
+    data: rooms,
+    pagination,
+    total,
   });
 });
 
@@ -42,142 +84,49 @@ export const getRoom = (req: Req, res: Res, next: Next) => {
   });
 };
 
-// @desc    Update room photo
-// @route   PUT /api/rooms/:roomId/photo
+// @desc    Create new room
+// @route   POST /api/rooms
 // access   Private
-export const updateRoomPhoto = asyncHandler(async (req, res, next) => {
-  const { roomId } = req.params;
+export const createRoom = asyncHandler(async (req, res, next) => {
+  const { uploadedFile, members } = req.body;
 
-  if (!req.body.uploadedFile) {
-    return res.status(200).json({
-      success: true,
-      data: req.room,
-      message: "Nothing was changed.",
-    });
+  req.body.photo = uploadedFile?.url;
+  req.body.roomOwner = req.user!._id;
+
+  const room = await Room.create(req.body);
+
+  let err;
+  if (members) {
+    err = await addMembers(members, String(req.user?._id), String(room._id));
   }
 
-  const photo = req.body.uploadedFile.url;
-
-  const room = await Room.findByIdAndUpdate(roomId, { photo }, { new: true });
-
-  res.status(200).json({
+  res.status(201).json({
     success: true,
     data: room,
-    message: `${room?.name}'s photo updated`,
+    message: `'${room.name}' room created${err ?? ""}`,
   });
 });
 
-// @desc    Update room info
-// @route   PUT /api/rooms/:roomId
-// access   Private
-export const updateRoomInfo = asyncHandler(async (req, res, next) => {
-  // modifyRoom middleware will ensure that roomId is valid and the user is authorized
-  const { roomId } = req.params;
+const addMembers = async (members: unknown, userId: string, roomId: string) => {
+  const membersToAdd: { memberId: string; roomId: string }[] = [];
 
-  const { private: Private, name } = req.body;
+  if (typeof members === "string" && members !== userId) {
+    membersToAdd.push({ memberId: members, roomId });
+  } else if (
+    Array.isArray(members) &&
+    members.every(m => typeof m === "string")
+  ) {
+    // Remove dublicate ids and owner id from the list
+    const filteredMembers = Array.from(new Set(members)).filter(
+      memberId => memberId !== userId
+    );
 
-  if (!Private && !name) {
-    return res.status(200).json({
-      success: true,
-      data: req.room,
-      message: "Nothing was changed.",
-    });
+    membersToAdd.push(
+      ...filteredMembers.map(memberId => ({ memberId, roomId }))
+    );
+  } else {
+    return ", but failed to add members";
   }
 
-  const room = await Room.findByIdAndUpdate(
-    roomId,
-    { name, private: Private },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
-  res.status(200).json({
-    success: true,
-    data: room,
-    message: `${room?.name} info updated`,
-  });
-});
-
-// @desc    Add room moderators
-// @route   PUT /api/rooms/:roomId/moderators/:moderatorId
-// access   Private
-export const addModerator = asyncHandler(async (req, res, next) => {
-  const { roomId, moderatorId } = req.params;
-
-  // TODO: Check if the moderator is a member first
-
-  if (!moderatorId) {
-    return next(new ErrorResponse("Invalid request, missing moderatorId", 400));
-  }
-
-  if (moderatorId === req.user?._id.toString()) {
-    return next(new ErrorResponse("Room owner cannot be a moderator", 400));
-  }
-
-  const newModeratorsArray = req.room!.moderators.map(mod => mod.toString());
-
-  if (newModeratorsArray.includes(moderatorId)) {
-    return res.status(200).json({
-      success: true,
-      data: req.room,
-      message: "Nothing was changed.",
-    });
-  }
-
-  newModeratorsArray.push(moderatorId);
-
-  const room = await Room.findByIdAndUpdate(
-    roomId,
-    { moderators: newModeratorsArray },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
-  res.status(200).json({
-    success: true,
-    data: room,
-    message: `Moderator added`,
-  });
-});
-
-// @desc    Remove room moderators
-// @route   DELETE /api/rooms/:roomId/moderators/:moderatorId
-// access   Private
-export const removeModerator = asyncHandler(async (req, res, next) => {
-  const { roomId, moderatorId } = req.params;
-
-  if (!moderatorId) {
-    return next(new ErrorResponse("Invalid request, missing moderatorId", 400));
-  }
-
-  const newModeratorsArray = req.room!.moderators.filter(
-    mod => mod.toString() !== moderatorId
-  );
-
-  if (newModeratorsArray.length === 0) {
-    return res.status(200).json({
-      success: true,
-      data: req.room,
-      message: "Nothing was changed.",
-    });
-  }
-
-  const room = await Room.findByIdAndUpdate(
-    roomId,
-    { moderators: newModeratorsArray },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
-  res.status(200).json({
-    success: true,
-    data: room,
-    message: `Moderator removed`,
-  });
-});
+  await Member.create(membersToAdd);
+};
