@@ -1,20 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import { TUser } from "./models/User";
 import { FilterQuery, Model } from "mongoose";
+
+import { TUser } from "./models/User";
+import { TRoom } from "./models/Room";
 
 export type Req = Request & Partial<AdditionalRequestProperties>;
 export type Res = Response & Partial<AdditionalResponseProperties>;
 export type Next = NextFunction;
 
 interface AdditionalRequestProperties {
+  // Any additional properties on the Request object...
   user: TUser;
+  room: TRoom;
   model: typeof Model;
   filterQuery: FilterQuery<any>;
   populateQuery: PopulateQuery[];
 }
 
 interface AdditionalResponseProperties {
-  advancedResults: AdvancedResults;
+  // Any additional properties on the Response object...
 }
 
 type PopulateQuery = {
@@ -22,17 +26,3 @@ type PopulateQuery = {
   select?: string;
   populate?: PopulateQuery[];
 };
-
-interface AdvancedResults {
-  success: boolean;
-  data: any;
-  pagination: {
-    next: boolean;
-    prev: boolean;
-    limit: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-  };
-  total: number;
-}
