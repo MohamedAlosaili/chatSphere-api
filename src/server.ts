@@ -10,8 +10,9 @@ import errorHandler from "./middlewares/errorHandler";
 import notFound from "./middlewares/notFound";
 
 // Route files
-import chats from "./routes/chats";
 import auth from "./routes/auth";
+import users from "./routes/users";
+import rooms from "./routes/rooms";
 
 const app = express();
 app.use(express.json());
@@ -19,7 +20,8 @@ connectDB();
 
 // Mount routes
 app.use("/api/auth", auth);
-app.use("/api/chats", protect, chats);
+app.use("/api/users", protect, users);
+app.use("/api/rooms", protect, rooms);
 
 // Error handler middleware
 app.use(notFound);
