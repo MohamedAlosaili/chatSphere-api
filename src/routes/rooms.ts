@@ -4,18 +4,16 @@ import multer from "multer";
 import {
   createRoom,
   getAvailableRooms,
-  addModerator,
-  removeModerator,
-  updateRoomInfo,
-  updateRoomPhoto,
   getRoom,
+  getCurrentUserRooms,
 } from "../controllers/rooms";
 
 import advancedResults from "../middlewares/advancedResults";
 import uploadFile from "../middlewares/uploadFile";
-import { isAllowedToModifyRoom, checkRoomExistence } from "../middlewares/room";
+import { isRoomOwner, checkRoomExistence } from "../middlewares/room";
 
 import membersRoute from "./members";
+import roomOwnerRoute from "./roomOwner";
 
 const router = express.Router();
 const upload = multer();
@@ -26,38 +24,17 @@ router
   .post(upload.single("photo"), uploadFile, createRoom)
   .get(getAvailableRooms, advancedResults);
 
-// Find the room before continue
+// Get currentUser rooms
+router.get("/joined", getCurrentUserRooms);
+
+// Find the room before continue or response with error
 router.use("/:roomId", checkRoomExistence);
 
-router
-  .route("/:roomId")
-  .get(getRoom) // Get single room
-  .put(isAllowedToModifyRoom, updateRoomInfo); // Update room info (name, private, etc)
+// Get single room
+router.route("/:roomId").get(getRoom);
 
-// Members route (Add, Remove, Get room members)
+// Subroutes of room route
 router.use("/:roomId/members", membersRoute);
-
-// Update room's photo
-router.put(
-  "/:roomId/photo",
-  isAllowedToModifyRoom,
-  upload.single("photo"),
-  uploadFile,
-  updateRoomPhoto
-);
-
-// Add new moderator
-router.put(
-  "/:roomId/moderators/:moderatorId",
-  isAllowedToModifyRoom,
-  addModerator
-);
-
-// Remove moderator
-router.delete(
-  "/:roomId/moderators/:moderatorId",
-  isAllowedToModifyRoom,
-  removeModerator
-);
+router.use("/:roomId/owner", isRoomOwner, roomOwnerRoute);
 
 export default router;
