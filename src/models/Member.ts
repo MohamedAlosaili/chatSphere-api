@@ -20,10 +20,10 @@ const MemberSchema = new mongoose.Schema<TMember>(
       required: [true, "Add room id"],
     },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  { timestamps: true }
 );
 
 // Prevent adding member twice
 MemberSchema.index({ memberId: 1, roomId: 1 }, { unique: true });
 
-export default mongoose.model("Member", MemberSchema);
+export default mongoose.model<TMember>("Member", MemberSchema);
