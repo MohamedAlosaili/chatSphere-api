@@ -55,10 +55,17 @@ const RoomSchema = new mongoose.Schema<TRoom>({
 RoomSchema.pre("save", async function (next) {
   if (this.isNew) {
     try {
-      await this.$model("Member").create({
-        memberId: this.roomOwner,
-        roomId: this._id,
-      });
+      await Promise.all([
+        this.$model("Member").create({
+          memberId: this.roomOwner,
+          roomId: this._id,
+        }),
+        this.$model("Message").create({
+          type: "announcement",
+          content: `${this.name} room created`,
+          roomId: this._id,
+        }),
+      ]);
     } catch (err) {
       next(err as any);
     }
@@ -66,4 +73,4 @@ RoomSchema.pre("save", async function (next) {
 });
 
 // TODO: Cascade deleting related docs when the room removed
-export default mongoose.model("Room", RoomSchema);
+export default mongoose.model<TRoom>("Room", RoomSchema);
