@@ -1,4 +1,5 @@
 import Member from "../models/Member";
+import Message from "../models/Message";
 
 import asyncHandler from "../middlewares/asyncHandler";
 import ErrorResponse from "../utils/errorResponse";
@@ -24,17 +25,23 @@ export const getRoomMembers = (req: Req, res: Res, next: Next) => {
 // access   Private
 export const joinRoom = asyncHandler(async (req, res, next) => {
   const { roomId } = req.params;
-  const { memberId } = req.body;
 
   const room = req.room!;
   const user = req.user!;
 
   // To add members on a private room, you must be the roomOwner
-  if (room.private && user._id.toString() !== room.roomOwner.toString()) {
+  if (room.private) {
     return next(new ErrorResponse("Not authorized to join this room", 403));
   }
 
-  await Member.create({ memberId, roomId });
+  await Promise.all([
+    Member.create({ memberId: user._id, roomId }),
+    Message.create({
+      type: "announcement",
+      content: `${user.username} joined`,
+      roomId,
+    }),
+  ]);
 
   res.status(201).json({
     success: true,
