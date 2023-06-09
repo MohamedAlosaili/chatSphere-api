@@ -6,7 +6,9 @@ import advancedResults from "../middlewares/advancedResults";
 
 const router = express.Router({ mergeParams: true });
 
-// /api/rooms/:roomId/members - checkRoomExistence will add a room object on the rquest object
+// @route   /api/rooms/:roomId/members
+// @note    checkRoomExistence will add a room object on the rquest object
+
 router.route("/").get(getRoomMembers, advancedResults);
 
 router.post("/join", joinRoom);
