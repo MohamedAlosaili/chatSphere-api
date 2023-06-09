@@ -23,7 +23,11 @@ const errorHandler = (
 
   // Mongoose wrong ID.
   if (err.name === "CastError") {
-    error = new ErrorResponse(`Resource not found`, 404);
+    const e = err as Error.CastError;
+    error = new ErrorResponse(
+      `${e.stringValue} is not valid as ${e.kind} type`,
+      400
+    );
   }
 
   // Mongoose duplicate key.
