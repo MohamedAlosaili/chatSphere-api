@@ -14,6 +14,7 @@ import { isRoomOwner, checkRoomExistence } from "../middlewares/room";
 
 import membersRoute from "./members";
 import roomOwnerRoute from "./roomOwner";
+import messagesRoute from "./messages";
 
 const router = express.Router();
 const upload = multer();
@@ -35,6 +36,7 @@ router.route("/:roomId").get(getRoom);
 
 // Subroutes of room route
 router.use("/:roomId/members", membersRoute);
+router.use("/:roomId/messages", messagesRoute);
 router.use("/:roomId/owner", isRoomOwner, roomOwnerRoute);
 
 export default router;
