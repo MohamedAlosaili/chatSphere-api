@@ -2,11 +2,11 @@ import mongoose, { ObjectId } from "mongoose";
 
 export interface TMessage {
   _id: string | ObjectId;
-  type: "announcement" | "text" | "media";
+  type: "announcement" | "text" | "file";
   senderId?: string | ObjectId;
   content?: unknown;
-  media?: {
-    mediaType: string;
+  file?: {
+    type: string;
     url: string;
   };
   roomId: string | ObjectId;
@@ -18,7 +18,7 @@ const MessageSchema = new mongoose.Schema<TMessage>(
     type: {
       type: String,
       enum: {
-        values: ["announcement", "text", "media"],
+        values: ["announcement", "text", "file"],
         message: "{VALUE} not supported as message type",
       },
       default: "text",
@@ -36,13 +36,13 @@ const MessageSchema = new mongoose.Schema<TMessage>(
       trim: true,
       required: [
         function (this: TMessage) {
-          return this.type !== "media";
+          return this.type !== "file";
         },
         "Add message content",
       ],
     },
-    media: {
-      mediaType: String,
+    file: {
+      type: String,
       url: String,
     },
     roomId: {
