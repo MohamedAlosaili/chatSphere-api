@@ -20,6 +20,7 @@ const RoomSchema = new mongoose.Schema<TRoom>({
   name: {
     type: String,
     required: [true, "Add room name"],
+    maxlength: [30, "Room name cannot be more than 30 characters"],
   },
   photo: {
     type: String,
