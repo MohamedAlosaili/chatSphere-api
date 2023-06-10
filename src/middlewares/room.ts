@@ -27,7 +27,7 @@ export const checkRoomExistence = asyncHandler(async (req, res, next) => {
 // @desc    Room can only modified by the owner
 // @route   PUT, POST, DELETE /api/rooms/:roomId/*
 // access   Private
-export const isRoomOwner = (req: Req, res: Res, next: Next) => {
+export const checkRoomOwner = (req: Req, res: Res, next: Next) => {
   if (req.user!._id.toString() !== req.room!.roomOwner.toString()) {
     return next(new ErrorResponse("Not authorized to modify this room", 403));
   }
