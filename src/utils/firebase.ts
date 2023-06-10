@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
 export interface UploadedFile {
-  mediaType: string;
+  type: string;
   url: string;
 }
 
@@ -35,5 +35,5 @@ export default async function uploadToStorage(
 
   const url = await getDownloadURL(fileRef);
 
-  return { mediaType: file.mimetype, url } as UploadedFile;
+  return { type: file.mimetype, url } as UploadedFile;
 }
