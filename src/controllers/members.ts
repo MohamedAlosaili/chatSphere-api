@@ -1,3 +1,4 @@
+import Room from "../models/Room";
 import Member from "../models/Member";
 import Message from "../models/Message";
 
@@ -29,7 +30,7 @@ export const joinRoom = asyncHandler(async (req, res, next) => {
   const room = req.room!;
   const user = req.user!;
 
-  // To add members on a private room, you must be the roomOwner
+  // To add members on a private room, you must be the room owner
   if (room.private) {
     return next(new ErrorResponse("Not authorized to join this room", 403));
   }
@@ -47,5 +48,70 @@ export const joinRoom = asyncHandler(async (req, res, next) => {
     success: true,
     data: null,
     message: `Joined to ${room.name}`,
+  });
+});
+
+// @desc    Left from the room
+// @route   DELETE /api/rooms/:roomId/leave
+// access   Private
+export const leftRoom = asyncHandler(async (req, res, next) => {
+  const { roomId } = req.params;
+
+  const room = req.room!;
+  const ownerId = String(room.roomOwner);
+  const user = req.user!;
+  const userId = String(req.user!._id);
+
+  const updateRoomOnwer = [];
+  // Replacing the owner ...
+  if (userId === ownerId) {
+    let newRoomOwner = room.moderators?.[0]?.toString();
+    let roomModerators = room.moderators;
+
+    if (newRoomOwner) {
+      // Remove the new king from the moderators
+      roomModerators = roomModerators.filter(
+        moderatorId => String(moderatorId) !== newRoomOwner
+      );
+    } else {
+      // If there is no moderators make the second member the newRoomOwner
+      const members = await Member.find({ roomId }).limit(2).sort("createdAt");
+      if (members.length > 1) {
+        newRoomOwner = String(members[1].memberId);
+      }
+    }
+
+    // If the room empty 🤓 don't do anything
+    if (!newRoomOwner) {
+      updateRoomOnwer.push(
+        Room.updateOne(
+          { _id: roomId },
+          { roomOwner: newRoomOwner, moderators: roomModerators }
+        )
+      );
+    }
+  }
+
+  const [deleteResult] = await Promise.all([
+    Member.deleteOne({ memberId: userId, roomId }),
+    ...updateRoomOnwer,
+  ]);
+
+  if (deleteResult.deletedCount > 0) {
+    await Message.create({
+      type: "announcement",
+      content: `${user.username} left`,
+      roomId,
+    });
+  } else {
+    return next(
+      new ErrorResponse("Invalid request, user not joined this room", 400)
+    );
+  }
+
+  res.status(200).json({
+    success: true,
+    data: null,
+    message: "The user has successfully left the room",
   });
 });
