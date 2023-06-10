@@ -6,6 +6,7 @@ import { Req } from "../../types";
 // If new file type were added, Add them here
 if (
   !process.env.MAX_PHOTO_SIZE ||
+  !process.env.MAX_FILE_SIZE ||
   !process.env.MAX_IMAGE_SIZE ||
   !process.env.MAX_VIDEO_SIZE
 ) {
@@ -15,6 +16,7 @@ if (
 const MAX_SIZE: { [key: string]: number } = {
   photo: parseInt(process.env.MAX_PHOTO_SIZE as string),
   image: parseInt(process.env.MAX_IMAGE_SIZE as string),
+  file: parseInt(process.env.MAX_FILE_SIZE as string),
   video: parseInt(process.env.MAX_VIDEO_SIZE as string),
 };
 
@@ -39,14 +41,8 @@ export const validateSize = (
   return { invalid, error };
 };
 
-const convertToMB = (size: number) => {
-  return Math.floor(size / 1024 / 1024);
-};
-
 export const getPhotoFilePath = (req: Req) => {
-  const randomString = crypto.randomBytes(20).toString("hex");
-
-  const roomBaseName = req.params.roomId ? req.params.roomId : randomString;
+  const roomBaseName = req.params.roomId ? req.params.roomId : randomString();
   const folder = req.url.includes("rooms") ? "rooms" : "users";
 
   const fileBaseName =
@@ -54,3 +50,10 @@ export const getPhotoFilePath = (req: Req) => {
 
   return `${folder}/${fileBaseName}`;
 };
+
+const convertToMB = (size: number) => {
+  return Math.floor(size / 1024 / 1024);
+};
+
+export const randomString = (size: number = 20) =>
+  crypto.randomBytes(size).toString("hex");
