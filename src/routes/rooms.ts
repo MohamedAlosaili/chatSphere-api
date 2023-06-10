@@ -10,7 +10,7 @@ import {
 
 import advancedResults from "../middlewares/advancedResults";
 import uploadFile from "../middlewares/uploadFile";
-import { isRoomOwner, checkRoomExistence } from "../middlewares/room";
+import { checkRoomOwner, checkRoomExistence } from "../middlewares/room";
 
 import membersRoute from "./members";
 import roomOwnerRoute from "./roomOwner";
@@ -37,6 +37,6 @@ router.route("/:roomId").get(getRoom);
 // Subroutes of room route
 router.use("/:roomId/members", membersRoute);
 router.use("/:roomId/messages", messagesRoute);
-router.use("/:roomId/owner", isRoomOwner, roomOwnerRoute);
+router.use("/:roomId/owner", checkRoomOwner, roomOwnerRoute);
 
 export default router;
