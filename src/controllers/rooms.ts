@@ -1,11 +1,13 @@
+import { Aggregate, PipelineStage } from "mongoose";
+
 import Room from "../models/Room";
 import Member from "../models/Member";
 
 import asyncHandler from "../middlewares/asyncHandler";
+import validMembersToAdd from "../utils/validMembersToAdd";
 
 // Types
 import { Next, Req, Res } from "../types";
-import { Aggregate, PipelineStage } from "mongoose";
 
 // @desc    Get all available rooms - public rooms
 // @route   GET /api/rooms
@@ -50,12 +52,14 @@ export const getCurrentUserRooms = asyncHandler(async (req, res, next) => {
     { $sort: { updatedAt: -1 } },
   ];
 
-  const [rooms, [{ total }]] = await Promise.all([
+  const [rooms, countDocuments] = await Promise.all([
     Member.aggregate([...pipeline, { $limit: limit }, { $skip: startIndex }]),
     Member.aggregate([...pipeline, { $count: "total" }]) as Aggregate<
       [{ total: number }]
     >,
   ]);
+
+  const total = countDocuments?.[0]?.total ?? 0;
 
   const pagination = {
     next: total > endIndex,
@@ -88,45 +92,29 @@ export const getRoom = (req: Req, res: Res, next: Next) => {
 // @route   POST /api/rooms
 // access   Private
 export const createRoom = asyncHandler(async (req, res, next) => {
-  const { uploadedFile, members } = req.body;
+  const { uploadedFile, members, ...body } = req.body;
 
-  req.body.photo = uploadedFile?.url;
-  req.body.roomOwner = req.user!._id;
+  body.photo = uploadedFile?.url;
+  body.roomOwner = req.user!._id;
+  console.log(body, members);
 
-  const room = await Room.create(req.body);
+  const room = await Room.create(body);
 
-  let err;
+  let error;
   if (members) {
-    err = await addMembers(members, String(req.user?._id), String(room._id));
+    error = (
+      await validMembersToAdd(
+        members,
+        String(req.user?._id),
+        String(room._id),
+        { simpleErrorMessage: true }
+      )
+    ).error;
   }
 
   res.status(201).json({
     success: true,
     data: room,
-    message: `'${room.name}' room created${err ?? ""}`,
+    message: `'${room.name}' room created${error ? `, but ${error}` : ""}`,
   });
 });
-
-const addMembers = async (members: unknown, userId: string, roomId: string) => {
-  const membersToAdd: { memberId: string; roomId: string }[] = [];
-
-  if (typeof members === "string" && members !== userId) {
-    membersToAdd.push({ memberId: members, roomId });
-  } else if (
-    Array.isArray(members) &&
-    members.every(m => typeof m === "string")
-  ) {
-    // Remove dublicate ids and owner id from the list
-    const filteredMembers = Array.from(new Set(members)).filter(
-      memberId => memberId !== userId
-    );
-
-    membersToAdd.push(
-      ...filteredMembers.map(memberId => ({ memberId, roomId }))
-    );
-  } else {
-    return ", but failed to add members";
-  }
-
-  await Member.create(membersToAdd);
-};
