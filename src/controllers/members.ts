@@ -81,15 +81,19 @@ export const leftRoom = asyncHandler(async (req, res, next) => {
       }
     }
 
-    // If the room empty 🤓 don't do anything
-    if (!newRoomOwner) {
-      updateRoomOnwer.push(
-        Room.updateOne(
-          { _id: roomId },
-          { roomOwner: newRoomOwner, moderators: roomModerators }
-        )
-      );
-    }
+    const changeToPrivateIfNoMembersLeft = newRoomOwner
+      ? {}
+      : { private: true };
+    updateRoomOnwer.push(
+      Room.updateOne(
+        { _id: roomId },
+        {
+          roomOwner: newRoomOwner,
+          moderators: roomModerators,
+          ...changeToPrivateIfNoMembersLeft,
+        }
+      )
+    );
   }
 
   const [deleteResult] = await Promise.all([
