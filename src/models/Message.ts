@@ -13,6 +13,17 @@ export interface TMessage {
   createdAt: Date | string;
 }
 
+const FileSchema = new mongoose.Schema<TMessage["file"]>({
+  type: {
+    type: String,
+    required: [true, "Add file type"],
+  },
+  url: {
+    type: String,
+    required: [true, "Add file url"],
+  },
+});
+
 const MessageSchema = new mongoose.Schema<TMessage>(
   {
     type: {
@@ -41,10 +52,7 @@ const MessageSchema = new mongoose.Schema<TMessage>(
         "Add message content",
       ],
     },
-    file: {
-      type: String,
-      url: String,
-    },
+    file: FileSchema,
     roomId: {
       type: mongoose.Types.ObjectId,
       ref: "Room",
