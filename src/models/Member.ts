@@ -3,6 +3,7 @@ import mongoose, { ObjectId } from "mongoose";
 export interface TMember {
   _id: string | ObjectId;
   memberId: string | ObjectId;
+  unreadMessages: number;
   roomId: string | ObjectId;
   createdAt: Date | string;
 }
@@ -13,6 +14,10 @@ const MemberSchema = new mongoose.Schema<TMember>(
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: [true, "Add user id"],
+    },
+    unreadMessages: {
+      type: Number,
+      default: 0,
     },
     roomId: {
       type: mongoose.Types.ObjectId,
