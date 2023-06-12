@@ -5,6 +5,8 @@ import {
   addNewMessage,
   deleteMessage,
   getRoomMessages,
+  getUnreadMessages,
+  resetUnreadMessages,
   updateMessage,
 } from "../controllers/messages";
 
@@ -23,5 +25,8 @@ router
   .post(upload.single("file"), uploadFile, addNewMessage);
 
 router.route("/:messageId").put(updateMessage).delete(deleteMessage);
+
+router.get("/unread", getUnreadMessages);
+router.post("/unread", resetUnreadMessages);
 
 export default router;
