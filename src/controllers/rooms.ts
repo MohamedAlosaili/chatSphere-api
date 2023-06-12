@@ -45,6 +45,19 @@ export const getCurrentUserRooms = asyncHandler(async (req, res, next) => {
         localField: "roomId",
         foreignField: "_id",
         as: "roomId",
+        pipeline: [
+          {
+            $lookup: {
+              from: "messages",
+              localField: "lastMessage",
+              foreignField: "_id",
+              as: "lastMessage",
+            },
+          },
+          {
+            $unwind: { path: "$lastMessage", preserveNullAndEmptyArrays: true },
+          },
+        ],
       },
     },
     { $unwind: { path: "$roomId" } },
