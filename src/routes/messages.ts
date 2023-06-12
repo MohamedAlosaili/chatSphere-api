@@ -1,7 +1,12 @@
 import express from "express";
 import multer from "multer";
 
-import { addNewMessage, getRoomMessages } from "../controllers/messages";
+import {
+  addNewMessage,
+  deleteMessage,
+  getRoomMessages,
+  updateMessage,
+} from "../controllers/messages";
 
 import advancedResults from "../middlewares/advancedResults";
 import uploadFile from "../middlewares/uploadFile";
@@ -17,7 +22,6 @@ router
   .get(getRoomMessages, advancedResults)
   .post(upload.single("file"), uploadFile, addNewMessage);
 
-// TODO: update and delete message
-// router.route("/:messageId").put().delete()
+router.route("/:messageId").put(updateMessage).delete(deleteMessage);
 
 export default router;
