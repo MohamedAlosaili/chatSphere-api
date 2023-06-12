@@ -9,6 +9,14 @@ import protect from "./middlewares/protect";
 import errorHandler from "./middlewares/errorHandler";
 import notFound from "./middlewares/notFound";
 
+// Security packages
+import mongoSanitize from "express-mongo-sanitize";
+import helmet from "helmet";
+// require() to escape from the type declaration error
+// TODO: update with package support TypeScript
+const { xss } = require("express-xss-sanitizer");
+import limitRequest from "./lib/rateLimit";
+
 // Route files
 import auth from "./routes/auth";
 import users from "./routes/users";
@@ -17,6 +25,16 @@ import rooms from "./routes/rooms";
 const app = express();
 app.use(express.json());
 connectDB();
+
+// # Security middlewares #
+// Sanitize Data to prevent NoSQL injection
+app.use(mongoSanitize());
+// Helmet secure Express app by setting various HTTP security headers.
+app.use(helmet());
+// Prevent cross-site scripting (XSS) attack
+app.use(xss());
+
+app.use(limitRequest(1 * 60 * 1000, 150));
 
 // Mount routes
 app.use("/api/auth", auth);
