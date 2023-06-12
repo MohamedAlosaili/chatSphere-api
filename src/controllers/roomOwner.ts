@@ -6,7 +6,9 @@ import Message from "../models/Message";
 import asyncHandler from "../middlewares/asyncHandler";
 import ErrorResponse from "../utils/errorResponse";
 import validMembersToAdd from "../utils/validMembersToAdd";
-import { isValidObjectId } from "mongoose";
+
+// Types
+import { isObjectIdOrHexString } from "mongoose";
 
 // @desc    Update room info
 // @route   PUT /api/rooms/:roomId/owner
@@ -66,64 +68,97 @@ export const updateRoomPhoto = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Add room moderators
-// @route   PUT /api/rooms/:roomId/owner/moderators/:moderatorId
+// @route   POST /api/rooms/:roomId/owner/moderators/add
 // access   Private - only room onwers
 export const addModerator = asyncHandler(async (req, res, next) => {
-  const { roomId, moderatorId } = req.params;
+  const { roomId } = req.params;
+  const { moderators } = req.body;
 
-  // TODO: Check if the moderator is a member first
+  const ownerId = String(req.user!._id);
 
-  if (!moderatorId) {
-    return next(new ErrorResponse("Invalid request, missing moderatorId", 400));
+  if (
+    !Array.isArray(moderators) ||
+    moderators.length === 0 ||
+    !moderators.every(moderator => isObjectIdOrHexString(moderator))
+  ) {
+    return next(new ErrorResponse("Invalid/Missing moderators array", 400));
   }
 
-  if (moderatorId === req.user?._id.toString()) {
-    return next(new ErrorResponse("Room owner cannot be a moderator", 400));
-  }
+  const currentRoomModerators = req.room!.moderators.map(mod => String(mod));
 
-  const newModeratorsArray = req.room!.moderators.map(mod => mod.toString());
+  const fillteredModerators = Array.from(
+    new Set([...moderators, ...currentRoomModerators])
+  ).filter(moderatorId => moderatorId !== ownerId);
 
-  if (newModeratorsArray.includes(moderatorId)) {
+  if (fillteredModerators.length > 5) {
+    return next(
+      new ErrorResponse("Room reached the maximum moderators number", 400)
+    );
+  } else if (fillteredModerators.length === currentRoomModerators.length) {
     return res.status(200).json({
       success: true,
       data: req.room,
-      message: "Nothing was changed.",
+      message: "Nothing was changed, no valid moderators to add.",
     });
   }
 
-  newModeratorsArray.push(moderatorId);
+  // To add moderators they must be a room members
+  const validModeratorsToAdd = await Member.find({
+    memberId: { $in: fillteredModerators },
+    roomId,
+  });
+
+  if (validModeratorsToAdd.length === currentRoomModerators.length) {
+    return res.status(200).json({
+      success: true,
+      data: req.room,
+      message: "Nothing was changed. no valid moderators to add",
+    });
+  }
+
+  const moderatorIds = validModeratorsToAdd.map(
+    moderator => moderator.memberId
+  );
 
   const room = await Room.findByIdAndUpdate(
     roomId,
-    { moderators: newModeratorsArray },
+    { moderators: moderatorIds },
     {
       new: true,
       runValidators: true,
     }
   );
 
+  const moderatorsAdded = moderatorIds.length - currentRoomModerators.length;
   res.status(200).json({
     success: true,
     data: room,
-    message: `Moderator added`,
+    message: `Moderator${moderatorsAdded > 1 ? "s" : ""} added`,
   });
 });
 
 // @desc    Remove room moderators
-// @route   DELETE /api/rooms/:roomId/owner/moderators/:moderatorId
+// @route   DELETE /api/rooms/:roomId/owner/moderators/remove
 // access   Private - only room onwers
 export const removeModerator = asyncHandler(async (req, res, next) => {
-  const { roomId, moderatorId } = req.params;
+  const { roomId } = req.params;
+  const { moderators } = req.body;
 
-  if (!moderatorId) {
-    return next(new ErrorResponse("Invalid request, missing moderatorId", 400));
+  if (
+    !Array.isArray(moderators) ||
+    moderators.length === 0 ||
+    !moderators.every(moderator => isObjectIdOrHexString(moderator))
+  ) {
+    return next(new ErrorResponse("Invalid/Missing moderators array", 400));
   }
 
-  const newModeratorsArray = req.room!.moderators.filter(
-    mod => mod.toString() !== moderatorId
+  const currentRoomModerators = req.room!.moderators.map(mod => String(mod));
+
+  const newModeratorsArray = currentRoomModerators.filter(
+    moderatorId => !moderators.includes(moderatorId)
   );
 
-  if (newModeratorsArray.length === 0) {
+  if (newModeratorsArray.length === req.room!.moderators.length) {
     return res.status(200).json({
       success: true,
       data: req.room,
@@ -140,10 +175,12 @@ export const removeModerator = asyncHandler(async (req, res, next) => {
     }
   );
 
+  const moderatorsRemoved =
+    req.room!.moderators.length - newModeratorsArray.length;
   res.status(200).json({
     success: true,
     data: room,
-    message: `Moderator removed`,
+    message: `Moderator${moderatorsRemoved > 1 ? "s" : ""} removed`,
   });
 });
 
@@ -183,7 +220,7 @@ export const removeMembers = asyncHandler(async (req, res, next) => {
   if (
     !Array.isArray(members) ||
     members.length === 0 ||
-    !members.every(memberId => isValidObjectId(memberId))
+    !members.every(memberId => isObjectIdOrHexString(memberId))
   ) {
     const message =
       Array.isArray(members) && members.length > 0
