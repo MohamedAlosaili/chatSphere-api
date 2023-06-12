@@ -45,7 +45,16 @@ export const addNewMessage = asyncHandler(async (req, res, next) => {
     roomId,
   };
 
-  const message = await Message.create(newMessage);
+  const [message] = await Promise.all([
+    Message.create(newMessage),
+    Member.updateMany(
+      {
+        roomId,
+        memberId: { $ne: req.user?._id },
+      },
+      { $inc: { unreadMessages: 1 } }
+    ),
+  ]);
 
   await Room.updateOne(
     { _id: roomId },
@@ -161,3 +170,41 @@ const authroizedToDeleteMessage = (
     return authorized;
   }
 };
+
+// @desc    Get unread messages
+// @route   GET /api/rooms/:roomId/messages/unread
+// access   Private
+export const getUnreadMessages = asyncHandler(async (req, res, next) => {
+  const { roomId } = req.params;
+
+  const member = await Member.findOne({ memberId: req.user?._id, roomId });
+
+  if (!member) {
+    return next(new ErrorResponse("Member not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: member.unreadMessages,
+  });
+});
+
+// @desc    Reset unread messages
+// @route   POST /api/rooms/:roomId/messages/unread
+// access   Private
+export const resetUnreadMessages = asyncHandler(async (req, res, next) => {
+  const { roomId } = req.params;
+
+  const member = await Member.findOneAndUpdate(
+    { memberId: req.user?._id, roomId },
+    {
+      unreadMessages: 0,
+    },
+    { new: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: member?.unreadMessages ?? 0,
+  });
+});
