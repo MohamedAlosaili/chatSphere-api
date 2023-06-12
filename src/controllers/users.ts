@@ -10,7 +10,6 @@ export const getUsers = (req: Req, res: Res, next: Next) => {
   req.model = User;
   req.filterQuery = { _id: { $ne: req.user?._id } };
 
-  res.status(200);
   next();
 };
 
@@ -24,6 +23,18 @@ export const getOnlineUsers = (req: Req, res: Res, next: Next) => {
     isOnline: true,
   };
 
-  res.status(200);
+  next();
+};
+
+// @desc    Get offline users
+// @route   GET /api/users/offline
+// access   Private
+export const getOfflineUsers = (req: Req, res: Res, next: Next) => {
+  req.model = User;
+  req.filterQuery = {
+    _id: { $ne: req.user?._id },
+    isOnline: false,
+  };
+
   next();
 };
