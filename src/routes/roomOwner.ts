@@ -24,12 +24,11 @@ router.put("/", updateRoomInfo);
 // Update room's photo
 router.put("/photo", upload.single("photo"), uploadFile, updateRoomPhoto);
 
-// Add new moderator
-router.put("/moderators/:moderatorId", addModerator);
+// Add/Remove moderators
+router.post("/moderators/add", addModerator);
+router.post("/moderators/remove", removeModerator);
 
-// Remove moderator
-router.delete("/moderators/:moderatorId", removeModerator);
-
+// Add/Remove members
 router.post("/members/add", addMembers);
 router.post("/members/remove", removeMembers);
 
