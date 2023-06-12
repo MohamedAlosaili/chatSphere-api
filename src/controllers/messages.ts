@@ -1,3 +1,4 @@
+import Room, { TRoom } from "../models/Room";
 import Message from "../models/Message";
 import Member from "../models/Member";
 
@@ -46,9 +47,117 @@ export const addNewMessage = asyncHandler(async (req, res, next) => {
 
   const message = await Message.create(newMessage);
 
+  await Room.updateOne(
+    { _id: roomId },
+    { lastMessage: message, updatedAt: Date.now() }
+  );
+
   res.status(201).json({
     success: true,
     data: message,
     message: "Message has been sent successfully",
   });
 });
+
+// @desc    Update message
+// @route   PUT /api/rooms/:roomId/messages/:messageId
+// access   Private
+export const updateMessage = asyncHandler(async (req, res, next) => {
+  const { messageId } = req.params;
+  const { content } = req.body;
+
+  const currentUserId = String(req.user!._id);
+
+  if (!messageId || !content) {
+    return next(
+      new ErrorResponse(
+        `Invalid request, missing ${
+          content ? "message id" : "new message content"
+        }`,
+        400
+      )
+    );
+  }
+
+  let message = await Message.findById(messageId);
+
+  if (!message) {
+    return next(new ErrorResponse("Message not found", 404));
+  }
+
+  if (message.senderId?.toString() !== currentUserId) {
+    return next(
+      new ErrorResponse("Not authorized to update this message", 401)
+    );
+  }
+
+  message = await Message.findByIdAndUpdate(
+    messageId,
+    { content },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: message,
+    message: "Message has been updated successfully",
+  });
+});
+
+// @desc    Delete message
+// @route   DELETE /api/rooms/:roomId/messages/:messageId
+// access   Private
+export const deleteMessage = asyncHandler(async (req, res, next) => {
+  const { messageId } = req.params;
+
+  if (!messageId) {
+    return next(new ErrorResponse(`Invalid request, missing message id`, 400));
+  }
+
+  let message = await Message.findById(messageId);
+
+  if (!message) {
+    return next(new ErrorResponse("Message not found", 404));
+  }
+
+  const checkUser = authroizedToDeleteMessage(
+    req.room!,
+    String(message.senderId),
+    String(req.user!._id)
+  );
+
+  if (!checkUser.authorized) {
+    return next(new ErrorResponse(checkUser.error!, 401));
+  }
+
+  await message.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    data: null,
+    message: "Message has been deleted successfully",
+  });
+});
+
+const authroizedToDeleteMessage = (
+  room: TRoom,
+  senderId: string,
+  currentUserId: string
+) => {
+  const authorized = { authorized: true, error: null };
+
+  if (currentUserId === room.roomOwner.toString()) return authorized;
+
+  const isAbleToDeleteMessage =
+    room.moderators.includes(currentUserId) &&
+    senderId !== room.roomOwner.toString();
+
+  if (senderId !== currentUserId && !isAbleToDeleteMessage) {
+    return {
+      authorized: false,
+      error: "Not authroized to delete this message",
+    };
+  } else {
+    return authorized;
+  }
+};
