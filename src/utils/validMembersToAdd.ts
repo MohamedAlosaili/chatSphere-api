@@ -1,4 +1,4 @@
-import { isValidObjectId } from "mongoose";
+import { isObjectIdOrHexString } from "mongoose";
 
 import Member from "../models/Member";
 import Message from "../models/Message";
@@ -20,7 +20,7 @@ const validMembersToAdd = async (
       throw "Invalid/Missing members array";
     }
 
-    const isMemberIdsValid = members.every(id => isValidObjectId(id));
+    const isMemberIdsValid = members.every(id => isObjectIdOrHexString(id));
     if (!isMemberIdsValid) throw "One or more member IDs are invalid";
 
     // If the room owner want to add more members - must check the old member to prevent duplicates members error
