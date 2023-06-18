@@ -56,11 +56,6 @@ export const addNewMessage = asyncHandler(async (req, res, next) => {
     ),
   ]);
 
-  await Room.updateOne(
-    { _id: roomId },
-    { lastMessage: message, updatedAt: Date.now() }
-  );
-
   res.status(201).json({
     success: true,
     data: message,
