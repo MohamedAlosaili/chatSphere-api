@@ -4,7 +4,7 @@ export interface TMessage {
   _id: string | ObjectId;
   type: "announcement" | "text" | "file";
   senderId?: string | ObjectId;
-  content?: unknown;
+  content?: string;
   file?: {
     type: string;
     url: string;
@@ -60,6 +60,21 @@ const MessageSchema = new mongoose.Schema<TMessage>(
     },
   },
   { timestamps: true }
+);
+
+MessageSchema.post(
+  "save",
+  { document: true, query: false },
+  async function (doc, next) {
+    try {
+      await this.$model("Room").updateOne(
+        { _id: doc.roomId },
+        { lastMessage: doc._id, updatedAt: Date.now() }
+      );
+    } catch (err) {
+      next(err as any);
+    }
+  }
 );
 
 export default mongoose.model<TMessage>("Message", MessageSchema);
