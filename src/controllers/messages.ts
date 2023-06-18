@@ -180,7 +180,7 @@ export const getUnreadMessages = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: member.unreadMessages,
+    data: { unreadMessages: member.unreadMessages },
   });
 });
 
