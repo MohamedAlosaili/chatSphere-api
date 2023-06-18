@@ -10,7 +10,7 @@ import {
   updateMessage,
 } from "../controllers/messages";
 
-import advancedResults from "../middlewares/advancedResults";
+import { advancedResults } from "../middlewares/advancedResults";
 import uploadFile from "../middlewares/uploadFile";
 
 const router = express.Router({ mergeParams: true });

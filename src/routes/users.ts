@@ -6,7 +6,7 @@ import {
   getUsers,
 } from "../controllers/users";
 
-import advancedResults from "../middlewares/advancedResults";
+import { advancedResults } from "../middlewares/advancedResults";
 
 const router = express.Router();
 

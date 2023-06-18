@@ -2,7 +2,7 @@ import express from "express";
 
 import { getRoomMembers, joinRoom, leftRoom } from "../controllers/members";
 
-import advancedResults from "../middlewares/advancedResults";
+import { advancedResults } from "../middlewares/advancedResults";
 
 const router = express.Router({ mergeParams: true });
 
