@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { FilterQuery, Model } from "mongoose";
+import { FilterQuery, Model, PipelineStage } from "mongoose";
 
 import { TUser } from "./models/User";
 import { TRoom } from "./models/Room";
@@ -15,6 +15,7 @@ interface AdditionalRequestProperties {
   model: typeof Model;
   filterQuery: FilterQuery<any>;
   populateQuery: PopulateQuery[];
+  pipeline: PipelineStage[];
 }
 
 interface AdditionalResponseProperties {
