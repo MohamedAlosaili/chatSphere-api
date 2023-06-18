@@ -8,7 +8,7 @@ import {
   getCurrentUserRooms,
 } from "../controllers/rooms";
 
-import advancedResults from "../middlewares/advancedResults";
+import { advancedAggregateResults } from "../middlewares/advancedResults";
 import uploadFile from "../middlewares/uploadFile";
 import { checkRoomOwner, checkRoomExistence } from "../middlewares/room";
 
@@ -20,13 +20,14 @@ const router = express.Router();
 const upload = multer();
 
 // Get all available rooms
+
 router
   .route("/")
   .post(upload.single("photo"), uploadFile, createRoom)
-  .get(getAvailableRooms, advancedResults);
+  .get(getAvailableRooms, advancedAggregateResults);
 
 // Get currentUser rooms
-router.get("/joined", getCurrentUserRooms);
+router.get("/joined", getCurrentUserRooms, advancedAggregateResults);
 
 // Find the room before continue or response with error
 router.use("/:roomId", checkRoomExistence);
