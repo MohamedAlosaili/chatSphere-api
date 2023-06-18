@@ -24,7 +24,7 @@ const RoomSchema = new mongoose.Schema<TRoom>({
   },
   photo: {
     type: String,
-    default: "default-room-photo.png",
+    default: "default-photo-room.png",
   },
   roomOwner: {
     type: mongoose.Types.ObjectId,
