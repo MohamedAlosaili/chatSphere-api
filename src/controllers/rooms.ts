@@ -1,10 +1,11 @@
-import { Aggregate, PipelineStage } from "mongoose";
-
 import Room from "../models/Room";
-import Member from "../models/Member";
 
 import asyncHandler from "../middlewares/asyncHandler";
 import validMembersToAdd from "../utils/validMembersToAdd";
+import {
+  availableRoomsPipeline,
+  currentUserRoomsPipeline,
+} from "../utils/pipelines";
 
 // Types
 import { Next, Req, Res } from "../types";
@@ -14,7 +15,7 @@ import { Next, Req, Res } from "../types";
 // access   Private
 export const getAvailableRooms = (req: Req, res: Res, next: Next) => {
   req.model = Room;
-  req.filterQuery = { private: false };
+  req.pipeline = availableRoomsPipeline(req.user!._id);
 
   next();
 };
@@ -22,74 +23,12 @@ export const getAvailableRooms = (req: Req, res: Res, next: Next) => {
 // @desc    Get current user rooms
 // @route   GET /api/rooms/joined
 // access   Private
-export const getCurrentUserRooms = asyncHandler(async (req, res, next) => {
-  const { page: pag, limit: lmt } = req.query;
+export const getCurrentUserRooms = (req: Req, res: Res, next: Next) => {
+  req.model = Room;
+  req.pipeline = currentUserRoomsPipeline(req.user!._id);
 
-  const page = Math.abs(parseInt(typeof pag === "string" ? pag : "1")) || 1;
-  const limit = Math.abs(parseInt(typeof lmt === "string" ? lmt : "25")) || 25;
-
-  const startIndex = (page - 1) * limit; // 0
-  const endIndex = page * limit; // 25
-
-  const user = req.user!;
-
-  const pipeline: PipelineStage[] = [
-    {
-      $match: {
-        memberId: user._id,
-      },
-    },
-    {
-      $lookup: {
-        from: "rooms",
-        localField: "roomId",
-        foreignField: "_id",
-        as: "roomId",
-        pipeline: [
-          {
-            $lookup: {
-              from: "messages",
-              localField: "lastMessage",
-              foreignField: "_id",
-              as: "lastMessage",
-            },
-          },
-          {
-            $unwind: { path: "$lastMessage", preserveNullAndEmptyArrays: true },
-          },
-        ],
-      },
-    },
-    { $unwind: { path: "$roomId" } },
-    { $replaceRoot: { newRoot: "$roomId" } },
-    { $sort: { updatedAt: -1 } },
-  ];
-
-  const [rooms, countDocuments] = await Promise.all([
-    Member.aggregate([...pipeline, { $limit: limit }, { $skip: startIndex }]),
-    Member.aggregate([...pipeline, { $count: "total" }]) as Aggregate<
-      [{ total: number }]
-    >,
-  ]);
-
-  const total = countDocuments?.[0]?.total ?? 0;
-
-  const pagination = {
-    next: total > endIndex,
-    prev: startIndex > 0,
-    limit,
-    page,
-    pageSize: rooms.length,
-    totalPages: Math.ceil(total / limit),
-  };
-
-  res.json({
-    success: true,
-    data: rooms,
-    pagination,
-    total,
-  });
-});
+  next();
+};
 
 // @desc    Get single room
 // @route   GET /api/rooms/:roomId
