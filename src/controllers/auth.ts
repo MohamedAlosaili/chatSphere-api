@@ -62,7 +62,11 @@ export const updatePhoto = asyncHandler(async (req, res, next) => {
   const photo = req.body.uploadedFile?.url;
 
   if (!photo) {
-    return next(new Error("Failed to upload photo"));
+    return res.status(200).json({
+      success: true,
+      data: req.user,
+      message: "Nothing was changed.",
+    });
   }
 
   await User.updateOne({ _id: req.user?._id }, { photo });
@@ -83,6 +87,7 @@ export const updateInfo = asyncHandler(async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: null,
+      message: "Nothing was changed.",
     });
   }
 
@@ -98,7 +103,6 @@ export const updateInfo = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/auth/online
 // access   Private - requested with user id
 export const updateToOnline = asyncHandler(async (req, res, next) => {
-  console.log(req.body);
   const { id } = req.body;
 
   if (!id) {
@@ -109,7 +113,7 @@ export const updateToOnline = asyncHandler(async (req, res, next) => {
     id,
     { isOnline: true },
     { new: true }
-  );
+  ).select("+email");
 
   res.status(200).json({
     success: true,
@@ -131,7 +135,7 @@ export const updateToOffline = asyncHandler(async (req, res, next) => {
     id,
     { isOnline: false },
     { new: true }
-  );
+  ).select("+email");
 
   res.status(200).json({
     success: true,
