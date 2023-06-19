@@ -16,6 +16,7 @@ interface AdditionalRequestProperties {
   filterQuery: FilterQuery<any>;
   populateQuery: PopulateQuery[];
   pipeline: PipelineStage[];
+  limitToLast: boolean;
 }
 
 interface AdditionalResponseProperties {
