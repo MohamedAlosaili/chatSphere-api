@@ -30,15 +30,9 @@ router.post(
 
 router.get("/currentUser", protect, currentUser);
 
-router.put(
-  "/updatephoto",
-  protect,
-  updalod.single("photo"),
-  uploadFile,
-  updatePhoto
-);
+router.put("/photo", protect, updalod.single("photo"), uploadFile, updatePhoto);
 
-router.put("/updateinfo", protect, updateInfo);
+router.put("/info", protect, updateInfo);
 
 router.put("/online", updateToOnline);
 router.put("/offline", updateToOffline);
