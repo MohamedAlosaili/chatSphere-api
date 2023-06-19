@@ -2,10 +2,11 @@
   "name": "chat-sphere-server",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "build": "tsc && node server.js"
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
