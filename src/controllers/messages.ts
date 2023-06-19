@@ -15,6 +15,7 @@ export const getRoomMessages = (req: Req, res: Res, next: Next) => {
   req.model = Message;
   req.filterQuery = { roomId: req.room!._id };
   req.populateQuery = [{ path: "senderId" }];
+  req.limitToLast = true;
 
   next();
 };
