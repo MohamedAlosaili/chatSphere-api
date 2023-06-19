@@ -1,8 +1,10 @@
 require("dotenv").config({ path: "./src/config/.env.local" });
 
+import http from "http";
 import express from "express";
 import colors from "colors";
 import connectDB from "./config/db";
+import socketIO from "./socket.io";
 
 // Middlewares
 import protect from "./middlewares/protect";
@@ -21,8 +23,11 @@ import limitRequest from "./lib/rateLimit";
 import auth from "./routes/auth";
 import users from "./routes/users";
 import rooms from "./routes/rooms";
+import search from "./routes/search";
 
 const app = express();
+const server = http.createServer(app);
+socketIO(server);
 app.use(express.json());
 connectDB();
 
@@ -40,6 +45,7 @@ app.use(limitRequest(1 * 60 * 1000, 150));
 app.use("/api/auth", auth);
 app.use("/api/users", protect, users);
 app.use("/api/rooms", protect, rooms);
+app.use("/api/search", protect, search);
 
 // Error handler middleware
 app.use(notFound);
@@ -47,7 +53,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(colors.yellow.bold(`Server running on PORT:${PORT}`));
   console.log(colors.blue.bold(`Environment mode: ${process.env.NODE_ENV}`));
 });
