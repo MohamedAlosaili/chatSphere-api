@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "./src/config/.env.local" });
+require("dotenv").config();
 
 import { initializeApp } from "firebase/app";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";

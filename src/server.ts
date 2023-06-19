@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "./src/config/.env.local" });
+require("dotenv").config();
 
 import http from "http";
 import express from "express";
