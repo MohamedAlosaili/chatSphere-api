@@ -42,23 +42,30 @@ export const advancedResults = asyncHandler(async (req, res, next) => {
     query = query.sort("-createdAt");
   }
 
+  const total = await req.model.countDocuments(req.filterQuery ?? {});
   // Paginate result
-  let page = Math.abs(parseInt(pag)) || 1;
-  let limit = Math.abs(parseInt(lmt)) || 25;
+  const page = Math.abs(parseInt(pag)) || 1;
+  const limit = Math.abs(parseInt(lmt)) || 25;
 
-  const startIndex = (page - 1) * limit; // 0
-  const endIndex = page * limit; // 25
+  let startIndex = (page - 1) * limit; // 0
+  let endIndex = page * limit; // 25
 
-  query = query.skip(startIndex).limit(limit);
+  if (req.limitToLast) {
+    const skip = total - limit * page;
+    startIndex = skip > 0 ? skip : 0;
+    endIndex = startIndex + limit;
 
-  const [results, total] = await Promise.all([
-    query,
-    req.model.countDocuments(req.filterQuery ?? {}),
-  ]);
+    const limitTo = skip < 0 ? limit + skip : limit;
+    query = query.skip(startIndex).limit(limitTo < 0 ? 0 : limitTo);
+  } else {
+    query = query.skip(startIndex).limit(limit);
+  }
+
+  const results = await query;
 
   const pagination = {
-    next: total > endIndex,
-    prev: startIndex > 0,
+    next: req.limitToLast ? startIndex > 0 : total > endIndex,
+    prev: req.limitToLast ? endIndex < total : startIndex > 0,
     limit,
     page,
     pageSize: results.length,
