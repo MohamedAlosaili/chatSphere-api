@@ -14,6 +14,7 @@ import notFound from "./middlewares/notFound";
 // Security packages
 import mongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
+import cors from "cors";
 // require() to escape from the type declaration error
 // TODO: update with package support TypeScript
 const { xss } = require("express-xss-sanitizer");
@@ -38,6 +39,12 @@ app.use(mongoSanitize());
 app.use(helmet());
 // Prevent cross-site scripting (XSS) attack
 app.use(xss());
+// CORS enable other domains to connect and make requests to this API
+app.use(
+  cors({
+    origin: process.env.PROD_CLIENT_URL,
+  })
+);
 
 app.use(limitRequest(1 * 60 * 1000, 150));
 
