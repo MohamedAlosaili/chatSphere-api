@@ -17,7 +17,7 @@
   - [Create New Room](#create-new-room)
   - [Get Available Rooms](#get-available-rooms)
   - [Get Current User Rooms](#get-current-user-rooms)
-  - [Get Single Room](#get-single-rooms)
+  - [Get Single Room](#get-single-room)
 - **[Room Owner](#room-owner)**
   - [Update room information](#update-room-information)
   - [Update room photo](#update-room-photo)
@@ -53,8 +53,8 @@ headers: {
 
 <br>
 
-<h2 id="authentication" style="display: flex; justify-content: space-between">Authentication 
-<a href="#table-of-content" style="font-size:1rem;">Table of content 🔼</a>
+<h2 id="authentication">Authentication 
+<a href="#table-of-content">🔼 TOP </a>
 </h2>
 
 ### Login
@@ -351,8 +351,8 @@ The request should include a JSON object in the request body with the following 
 <br>
 <br>
 
-<h2 id="authentication" style="display: flex; justify-content: space-between">Users 
-<a href="#table-of-content" style="font-size:1rem;">Table of content 🔼</a>
+<h2 id="users">Users 
+<a href="#table-of-content">🔼 TOP </a>
 </h2>
 
 ### Get All Users
@@ -543,8 +543,8 @@ The request should include a JSON object in the request body with the following 
 <br>
 <br>
 
-<h2 id="authentication" style="display: flex; justify-content: space-between">Rooms 
-<a href="#table-of-content" style="font-size:1rem;">Table of content 🔼</a>
+<h2 id="rooms">Rooms 
+<a href="#table-of-content">🔼 TOP </a>
 </h2>
 
 ### Create New Room
@@ -791,8 +791,8 @@ If the photo file does not included you can use a json object with following fie
 <br>
 <br>
 
-<h2 id="authentication" style="display: flex; justify-content: space-between">Room Owner 
-<a href="#table-of-content" style="font-size:1rem;">Table of content 🔼</a>
+<h2 id="room-owner">Room Owner 
+<a href="#table-of-content">🔼 TOP </a>
 </h2>
 
 ### Update room information
@@ -1132,8 +1132,8 @@ The request should include a JSON object in the request body with the following 
 <br>
 <br>
 
-<h2 id="authentication" style="display: flex; justify-content: space-between">Members 
-<a href="#table-of-content" style="font-size:1rem;">Table of content 🔼</a>
+<h2 id="members">Members 
+<a href="#table-of-content">🔼 TOP </a>
 </h2>
 
 ### Get Room Members
@@ -1282,8 +1282,8 @@ The request should include a JSON object in the request body with the following 
 <br>
 <br>
 
-<h2 id="authentication" style="display: flex; justify-content: space-between">Messages 
-<a href="#table-of-content" style="font-size:1rem;">Table of content 🔼</a>
+<h2 id="messages">Messages 
+<a href="#table-of-content">🔼 TOP </a>
 </h2>
 
 ### Get Room Messages
@@ -1605,8 +1605,8 @@ The request should include a JSON object with the following field:
 <br>
 <br>
 
-<h2 id="authentication" style="display: flex; justify-content: space-between">Search 
-<a href="#table-of-content" style="font-size:1rem;">Table of content 🔼</a>
+<h2 id="search">Search 
+<a href="#table-of-content">🔼 TOP </a>
 </h2>
 
 ### Search Users
