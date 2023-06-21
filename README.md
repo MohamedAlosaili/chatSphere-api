@@ -68,3 +68,13 @@ yarn install && yarn dev
 # or
 pnpm install && pnpm dev
 ```
+
+- To populate the DB with sample data run the below script
+
+```bash
+npx ts-node src/seeder i
+# or
+yarn ts-node src/seeder i
+# or
+pnpm ts-node src/seeder i
+```

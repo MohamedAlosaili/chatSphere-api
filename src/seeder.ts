@@ -51,9 +51,9 @@ args:
 
 async function importData() {
   try {
-    await User.create(users);
-    await Room.create(rooms);
-    await Message.create(messages);
+    // await User.create(users);
+    // await Room.create(rooms);
+    // await Message.create(messages);
 
     console.log("Data imported ☑️".green.inverse);
     process.exit(1);
