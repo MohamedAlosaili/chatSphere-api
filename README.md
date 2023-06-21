@@ -1,5 +1,7 @@
 # [ChatSphere 💬](https://chat-sphere-phi.vercel.app/)
 
+[API Documentation](https://github.com/MohamedAlosaili/chatSphere-api/tree/main/docs/documentation.md)
+
 ## Description
 
 This repository contains the backend API server for [ChatSphere](https://github.com/MohamedAlosaili/chatSphere) application.
@@ -69,7 +71,7 @@ yarn install && yarn dev
 pnpm install && pnpm dev
 ```
 
-- To populate the DB with sample data run the below script
+- To populate the DB with samples data run the below script
 
 ```bash
 npx ts-node src/seeder i
