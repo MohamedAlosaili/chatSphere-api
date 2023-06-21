@@ -5,7 +5,10 @@ import Member from "./models/Member";
 const socketIO = (server: Server) => {
   const io = new SocketIO.Server(server, {
     cors: {
-      origin: "*",
+      origin:
+        process.env.NODE_ENV === "development"
+          ? process.env.DEV_CLIENT_URL
+          : process.env.PROD_CLIENT_URL,
     },
   });
 
