@@ -1,0 +1,47 @@
+[
+  {
+    "_id": "647e56a86cc8b583e3fbb2f8",
+    "email": "mohammad425262@gmail.com",
+    "isOnline": false,
+    "photo": "https://firebasestorage.googleapis.com/v0/b/chatsphere.appspot.com/o/photos%2Fusers%2F64803a6d5be8b153011116fd.jpg?alt=media&token=6852b7ea-f75d-4114-aa13-209e08f1233b",
+    "createdAt": "2023-06-05T21:42:00.530Z",
+    "updatedAt": "2023-06-19T14:28:25.331Z",
+    "username": "Mohammed"
+  },
+  {
+    "_id": "647f8f8ad525d248134a66d0",
+    "email": "chattsphere@gmail.com",
+    "isOnline": false,
+    "photo": "https://firebasestorage.googleapis.com/v0/b/chatsphere.appspot.com/o/photos%2Fusers%2F647f8f8ad525d248134a66d0.jpeg?alt=media&token=816f115c-e7cc-40ec-a905-3118d096ebb8",
+    "createdAt": "2023-06-06T19:56:58.110Z",
+    "updatedAt": "2023-06-07T13:39:26.163Z",
+    "username": "Salem"
+  },
+  {
+    "_id": "64803a6d5be8b153011116fd",
+    "email": "mohamedweb85@gmail.com",
+    "isOnline": false,
+    "photo": "https://firebasestorage.googleapis.com/v0/b/chatsphere.appspot.com/o/photos%2Fusers%2F647e56a86cc8b583e3fbb2f8.jpg?alt=media&token=f0d82ec2-f0cb-4574-889d-84f77315fc07",
+    "createdAt": "2023-06-06T19:56:58.110Z",
+    "updatedAt": "2023-06-07T13:39:26.163Z",
+    "username": "Rose"
+  },
+  {
+    "_id": "6486e9f0a7d38a0691617ccd",
+    "email": "nora@gmail.com",
+    "isOnline": true,
+    "photo": "https://firebasestorage.googleapis.com/v0/b/chatsphere.appspot.com/o/photos%2F647e56a86cc8b583e3fbb2f8.jpg?alt=media&token=a370dc01-ee27-4da4-af64-115d7e2a4db8",
+    "createdAt": "2023-06-06T19:56:58.110Z",
+    "updatedAt": "2023-06-07T13:39:26.163Z",
+    "username": "Nora"
+  },
+  {
+    "_id": "6486ea12a7d38a0691617ccf",
+    "email": "saleh@gmail.com",
+    "isOnline": true,
+    "photo": "default-photo.png",
+    "createdAt": "2023-06-06T19:56:58.110Z",
+    "updatedAt": "2023-06-07T13:39:26.163Z",
+    "username": "Saleh"
+  }
+]

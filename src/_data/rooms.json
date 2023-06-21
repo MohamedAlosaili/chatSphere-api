@@ -1,0 +1,57 @@
+[
+  {
+    "_id": "648492018cf1174ef39d13ca",
+    "private": false,
+    "name": "Wizards 🧙‍♂️",
+    "photo": "https://firebasestorage.googleapis.com/v0/b/chatsphere.appspot.com/o/photos%2Fusers%2F64803a6d5be8b153011116fd.png?alt=media&token=c9bb3dfa-fb59-4baf-9655-2de1b9173d92",
+    "roomOwner": "647f8f8ad525d248134a66d0",
+    "lastMessage": "648492018cf1174ef39d13cc",
+    "moderators": [],
+    "createdAt": "2023-06-10T15:08:49.873+00:00",
+    "updatedAt": "2023-06-10T15:08:49.873+00:00"
+  },
+  {
+    "_id": "6486ca3c97142e38f8528027",
+    "private": false,
+    "name": "Testers 🧪",
+    "photo": "default-photo-room.png",
+    "roomOwner": "647e56a86cc8b583e3fbb2f8",
+    "lastMessage": "648492028cf1174ef39d13d3",
+    "moderators": [],
+    "createdAt": "2023-06-12T07:33:16.833+00:00",
+    "updatedAt": "2023-06-12T07:33:16.833+00:00"
+  },
+  {
+    "_id": "648e304a174a87285f3407f4",
+    "private": false,
+    "name": "GoodFellas",
+    "photo": "default-photo-room.png",
+    "roomOwner": "64803a6d5be8b153011116fd",
+    "lastMessage": "648498e2818f225b92d3210b",
+    "moderators": [],
+    "createdAt": "2023-06-17T22:14:34.267+00:00",
+    "updatedAt": "2023-06-17T22:14:34.267+00:00"
+  },
+  {
+    "_id": "648e30c6174a87285f340828",
+    "private": false,
+    "name": "Family 👨‍👨‍👧‍👦",
+    "photo": "default-photo-room.png",
+    "roomOwner": "6486e9f0a7d38a0691617ccd",
+    "lastMessage": "64849900818f225b92d32113",
+    "moderators": [],
+    "createdAt": "2023-06-17T22:16:38.237+00:00",
+    "updatedAt": "2023-06-17T22:16:38.237+00:00"
+  },
+  {
+    "_id": "648e3987174a87285f340976",
+    "private": false,
+    "name": "The CORNER",
+    "photo": "default-photo-room.png",
+    "roomOwner": "6486ea12a7d38a0691617ccf",
+    "lastMessage": "64849d867b3f96c14e6cc159",
+    "moderators": [],
+    "createdAt": "2023-06-19T18:43:17.959+00:00",
+    "updatedAt": "2023-06-19T18:43:17.959+00:00"
+  }
+]
