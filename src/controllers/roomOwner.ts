@@ -204,7 +204,7 @@ export const addMembers = asyncHandler(async (req, res, next) => {
   res.status(201).json({
     success: true,
     data: null,
-    message: `${result.data} joined`,
+    message: `Members added successfully`,
   });
 });
 
@@ -257,6 +257,6 @@ export const removeMembers = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: null,
-    message: "Members deleted successfully",
+    message: "Members removed successfully",
   });
 });
