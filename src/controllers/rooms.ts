@@ -48,7 +48,6 @@ export const createRoom = asyncHandler(async (req, res, next) => {
 
   body.photo = uploadedFile?.url;
   body.roomOwner = req.user!._id;
-  console.log(body, members);
 
   const room = await Room.create(body);
 
