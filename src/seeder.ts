@@ -24,12 +24,6 @@ const rooms = JSON.parse(
     "utf8"
   )
 );
-const messages = JSON.parse(
-  fs.readFileSync(
-    path.join(process.cwd(), "src", "_data", "messages.json"),
-    "utf8"
-  )
-);
 
 const arg = process.argv[2];
 
@@ -51,9 +45,8 @@ args:
 
 async function importData() {
   try {
-    // await User.create(users);
-    // await Room.create(rooms);
-    // await Message.create(messages);
+    await User.create(users);
+    await Room.create(rooms);
 
     console.log("Data imported ☑️".green.inverse);
     process.exit(1);
