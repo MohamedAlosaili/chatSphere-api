@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 import colors from "colors";
 
 const connectDB = async () => {
-  const MONGODB_URI = process.env.MONGODB_URI;
+  const MONGODB_URI =
+    process.env.NODE_ENV === "development"
+      ? process.env.MONGODB_URI_DEV
+      : process.env.MONGODB_URI;
   if (!MONGODB_URI) {
     throw new Error("Missing MONGODB_URI environment variable");
   }
