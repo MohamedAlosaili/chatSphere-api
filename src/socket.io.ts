@@ -14,13 +14,26 @@ const socketIO = (server: Server) => {
 
   io.on("connection", socket => {
     // console.log("User connected");
+
+    socket.on("update room", async (roomId: string, type: string) => {
+      if (type === "leave") {
+        socket.broadcast.emit(`room-${roomId} info`);
+      } else {
+        io.emit(`room-${roomId} info`);
+      }
+
+      memberEmitter(roomId, io);
+    });
+
+    socket.on("update messages", async (roomId: string, memberId?: string) => {
+      io.emit(`room-${roomId} messages`);
+      memberEmitter(roomId, io, memberId);
+    });
+
     socket.on("new message", async (roomId: string) => {
-      io.emit(`room-${roomId}`);
+      socket.broadcast.emit(`room-${roomId} messages`);
 
-      const members = await Member.find({ roomId });
-      const memberIds = members.map(member => String(member.memberId));
-
-      memberIds.forEach(id => io.emit(id));
+      memberEmitter(roomId, socket.broadcast);
     });
 
     socket.on("update online", () => {
@@ -30,6 +43,19 @@ const socketIO = (server: Server) => {
     socket.on("disconnect", () => {
       // console.log("user disconnected");
     });
+
+    const memberEmitter = async (
+      roomId: string,
+      emitter: typeof io | typeof socket.broadcast,
+      memberId?: string
+    ) => {
+      const members = await Member.find({ roomId });
+      const memberIds = members.map(member => String(member.memberId));
+
+      if (memberId) memberIds.push(memberId);
+
+      memberIds.forEach(id => emitter.emit(id));
+    };
   });
 };
 
