@@ -23,7 +23,10 @@ export const allUsers = (req: Req, res: Res, next: Next) => {
   }
 
   req.model = User;
-  req.filterQuery = { username: { $regex: query, $options: "i" } };
+  req.filterQuery = {
+    _id: { $ne: req.user?._id },
+    username: { $regex: query, $options: "i" },
+  };
   next();
 };
 
