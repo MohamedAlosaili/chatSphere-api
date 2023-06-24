@@ -33,12 +33,14 @@ export const getCurrentUserRooms = (req: Req, res: Res, next: Next) => {
 // @desc    Get single room
 // @route   GET /api/rooms/:roomId
 // access   Private
-export const getRoom = (req: Req, res: Res, next: Next) => {
+export const getRoom = asyncHandler(async (req, res, next) => {
+  const room = await Room.findById(req.room?._id).populate("roomOwner");
+
   res.status(200).json({
     success: true,
-    data: req.room,
+    data: room,
   });
-};
+});
 
 // @desc    Create new room
 // @route   POST /api/rooms
