@@ -15,15 +15,25 @@ const socketIO = (server: Server) => {
   io.on("connection", socket => {
     // console.log("User connected");
 
-    socket.on("update room", async (roomId: string, type: string) => {
-      if (type === "leave") {
-        socket.broadcast.emit(`room-${roomId} info`);
-      } else {
-        io.emit(`room-${roomId} info`);
-      }
+    socket.on(
+      "update room",
+      async (roomId: string, type: string, memberIds: string[]) => {
+        // For removed user to reset activeRoom
+        if (memberIds && Array.isArray(memberIds)) {
+          memberIds.forEach(id =>
+            socket.broadcast.emit(`room-${roomId} removed-${id}`)
+          );
+        }
 
-      memberEmitter(roomId, io);
-    });
+        if (type === "leave") {
+          socket.broadcast.emit(`room-${roomId} info`);
+        } else {
+          io.emit(`room-${roomId} info`);
+        }
+
+        memberEmitter(roomId, io, memberIds);
+      }
+    );
 
     socket.on("update messages", async (roomId: string, memberId?: string) => {
       io.emit(`room-${roomId} messages`);
@@ -47,12 +57,13 @@ const socketIO = (server: Server) => {
     const memberEmitter = async (
       roomId: string,
       emitter: typeof io | typeof socket.broadcast,
-      memberId?: string
+      memberId?: string | string[]
     ) => {
       const members = await Member.find({ roomId });
       const memberIds = members.map(member => String(member.memberId));
 
-      if (memberId) memberIds.push(memberId);
+      if (typeof memberId === "string") memberIds.push(memberId);
+      if (Array.isArray(memberId)) memberIds.push(...memberId);
 
       memberIds.forEach(id => emitter.emit(id));
     };
