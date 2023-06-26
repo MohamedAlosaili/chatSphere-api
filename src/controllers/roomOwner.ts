@@ -242,7 +242,7 @@ export const removeMembers = asyncHandler(async (req, res, next) => {
 
   const [deletedMembers] = await Promise.all([
     User.find({ _id: { $in: filteredMemberIds } }),
-    Member.deleteMany({ memberId: { $in: filteredMemberIds } }),
+    Member.deleteMany({ memberId: { $in: filteredMemberIds }, roomId }),
   ]);
 
   if (deletedMembers.length > 0) {
