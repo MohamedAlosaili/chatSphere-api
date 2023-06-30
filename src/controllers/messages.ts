@@ -75,7 +75,7 @@ export const updateMessage = asyncHandler(async (req, res, next) => {
 
   let message = await Message.findById(messageId);
 
-  if (!content && message?.type === "text") {
+  if (!content && message?.type !== "file") {
     return next(
       new ErrorResponse(`Invalid request, missing new message content`, 400)
     );
