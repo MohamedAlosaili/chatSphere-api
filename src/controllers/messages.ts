@@ -73,18 +73,13 @@ export const updateMessage = asyncHandler(async (req, res, next) => {
 
   const currentUserId = String(req.user!._id);
 
-  if (!messageId || !content) {
+  let message = await Message.findById(messageId);
+
+  if (!content && message?.type === "text") {
     return next(
-      new ErrorResponse(
-        `Invalid request, missing ${
-          content ? "message id" : "new message content"
-        }`,
-        400
-      )
+      new ErrorResponse(`Invalid request, missing new message content`, 400)
     );
   }
-
-  let message = await Message.findById(messageId);
 
   if (!message) {
     return next(new ErrorResponse("Message not found", 404));
@@ -99,7 +94,7 @@ export const updateMessage = asyncHandler(async (req, res, next) => {
   message = await Message.findByIdAndUpdate(
     messageId,
     { content },
-    { new: true, runValidators: true }
+    { new: true }
   );
 
   res.status(200).json({
